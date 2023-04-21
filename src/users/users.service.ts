@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma.service';
@@ -8,10 +8,18 @@ import { Post } from '@prisma/client';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     const { email, name } = createUserDto;
 
-    return this.prisma.user.create({
+    if (email == null) {
+      throw new BadRequestException('The email field is missing');
+    }
+
+    if (name == null) {
+      throw new BadRequestException('The name field is missing');
+    }
+
+    return await this.prisma.user.create({
       data: {
         email,
         name,
